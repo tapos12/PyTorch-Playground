@@ -7,6 +7,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+'''
+Kaggle _ Titanic - Binary classification problem
+'''
 
 dtype= torch.float
 titanic = pd.read_csv('dataset/titanic/train.csv',
@@ -23,12 +26,12 @@ titanic_pred = titanic_pred.replace('', np.nan)
 
 
 #col = ['Pclass','Sex','Age','SibSp','Parch','Embarked', 'Fare']
-col = ['Survived','Pclass', 'Sex', 'Age', 'Fare', 'Embarked']
+col = ['Survived','Pclass', 'Sex', 'Age', 'Fare']
 titanic_features = titanic[col]
 titanic_features = titanic_features.dropna()
 titanic_target = titanic_features[['Survived']]
 
-feature =['Pclass', 'Sex', 'Age', 'Fare', 'Embarked']
+feature =['Pclass', 'Sex', 'Age', 'Fare']
 titanic_features = titanic_features[feature]
 titanic_pred_features = titanic_pred[feature]
 
@@ -37,8 +40,8 @@ le = preprocessing.LabelEncoder()
 titanic_features['Sex'] = le.fit_transform(titanic_features['Sex'])
 titanic_pred_features['Sex'] = le.fit_transform(titanic_pred_features['Sex'])
 
-titanic_features['Embarked'] = le.fit_transform(titanic_features['Embarked'])
-titanic_pred_features['Embarked'] = le.fit_transform(titanic_pred_features['Embarked'])
+#titanic_features['Embarked'] = le.fit_transform(titanic_features['Embarked'])
+#titanic_pred_features['Embarked'] = le.fit_transform(titanic_pred_features['Embarked'])
 
 titanic_features = pd.get_dummies(titanic_features, columns=['Pclass'])
 titanic_pred_features = pd.get_dummies(titanic_pred_features, columns=['Pclass'])
@@ -59,10 +62,9 @@ y_test_tensor = torch.from_numpy(y_test.values).view(1,-1)[0]
 titanic_pred_features = titanic_pred_features.values
 x_pred_tensor = torch.from_numpy(titanic_pred_features).float()
 
-input = 7
+input = 6
 output = 2
 hidden = 50
-
 
 class Net(nn.Module):
 	def __init__(self):
@@ -83,7 +85,7 @@ optimizer = optim.Adam(model.parameters())
 loss_fn = nn.NLLLoss()
 
 epoch_d = []
-epochs = 3001
+epochs = 2001
 
 for epoch in range(1, epochs):
 	optimizer.zero_grad()
@@ -106,7 +108,7 @@ for epoch in range(1, epochs):
 		print(epoch, loss.data.item(), loss_test.data.item(), accuracy)
 
 
-torch.save(model, 'my_model_titanic')
+#torch.save(model, 'my_model_titanic')
 
 final_pred = model(x_pred_tensor)
 _, f_pred = final_pred.data.max(1)
@@ -118,3 +120,8 @@ df.columns = ["Survived"]
 merged = titanic_pred.join(df)
 final = merged[["PassengerId","Survived"]]
 final.to_csv('gender_submission.csv', sep=',', index=False)
+
+'''
+Train accuracy ~81%
+Needs to improve later
+'''
